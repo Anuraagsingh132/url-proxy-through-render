@@ -1,21 +1,17 @@
 #!/bin/bash
 
-echo "[1/6] Installing Python dependencies..."
+echo "[1/5] Installing Python dependencies..."
 pip install flask flask-ngrok psutil requests
 
-echo "[2/6] Downloading ngrok v3..."
-wget -q https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
-
-echo "[3/6] Extracting ngrok..."
-tar -xvzf ngrok-v3-stable-linux-amd64.tgz
-chmod +x ngrok
-
-echo "[4/6] Configuring ngrok authtoken..."
-./ngrok config add-authtoken 2zv9iW0LAHsUktJJ2u6TC8am6zE_4GdigGStqxk7RwqSX7yHQ
-
-echo "[5/6] Starting Flask app in background..."
+echo "[2/5] Starting Flask app in background..."
 nohup python3 app.py > flask.log 2>&1 &
 sleep 2
 
-echo "[6/6] Starting ngrok tunnel on port 5001..."
-./ngrok http 5001
+echo "[3/5] Downloading Cloudflared (HTTP/2 tunnel tool)..."
+wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+
+echo "[4/5] Installing Cloudflared..."
+sudo dpkg -i cloudflared-linux-amd64.deb
+
+echo "[5/5] Launching tunnel over HTTP/2..."
+cloudflared tunnel --url http://localhost:5001 --protocol http2
